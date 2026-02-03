@@ -1,0 +1,68 @@
+// This library is available on a local maven repo. To rebuild it, run ./gradlew publishToMavenLocal
+// To us it, add implementation 'custom.striker:utils:1.1'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'custom.striker'
+version = '1.1'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    withSourcesJar() // Optional: generates a sources jar for IDEs
+}
+
+jar {
+    exclude("custom/striker/Tester.class")
+}
+
+tasks.named('jar') {
+    // use task path string to avoid requiring the task object at configuration time
+    dependsOn(":Agent:shadowJar")
+
+    // use Provider so Gradle resolves the file lazily
+    from({ project(':Agent').tasks.named('shadowJar').flatMap { it.archiveFile } }) {
+        into 'agent'
+        rename { 'agent.jar' }
+    }
+}
+
+dependencies {
+    // --------------------------
+    // Internal library dependencies
+    // --------------------------
+    // api tells gradle that it will need these dependencies if it uses this library
+    // Implementation is for dependencies that only this library needs
+    api 'org.slf4j:slf4j-api:2.0.13'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.18.1'
+
+    // --------------------------
+    // Testing dependencies
+    // --------------------------
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            groupId = 'custom.striker'
+            artifactId = 'utils'
+            version = '1.1'
+        }
+    }
+
+    repositories {
+        mavenLocal() // Publishes to your local Maven repository (~/.m2/repository)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

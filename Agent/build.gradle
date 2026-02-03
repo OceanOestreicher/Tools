@@ -1,0 +1,42 @@
+plugins {
+    id 'java-library'
+    id 'com.gradleup.shadow' version '9.3.0' // shadow plugin
+}
+
+group = 'com.striker'
+version = '1.0-SNAPSHOT'
+
+ext {
+    byteBuddyVersion = '1.14.16' // replace with a current stable version
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api "net.bytebuddy:byte-buddy:${byteBuddyVersion}"
+    api "net.bytebuddy:byte-buddy-agent:${byteBuddyVersion}"
+    // optional: net.bytebuddy:byte-buddy-dep exists for some setups
+}
+
+jar {
+    manifest {
+        attributes(
+                'Premain-Class': 'custom.agent.Agent',
+                'Agent-Class': 'custom.agent.Agent',
+                'Can-Redefine-Classes': 'true',
+                'Can-Retransform-Classes': 'true'
+        )
+    }
+}
+
+// build a fat agent JAR
+shadowJar {
+    archiveClassifier.set('agent')
+    mergeServiceFiles() // preserve META-INF/services if needed
+}
+
+test {
+    useJUnitPlatform()
+}

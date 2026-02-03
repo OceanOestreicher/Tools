@@ -42,3 +42,4 @@ bin/
 gradlew
 gradlew.bat
 /src/main/java/custom/striker/Tester.java
+/src/main/resources/logback.xml
