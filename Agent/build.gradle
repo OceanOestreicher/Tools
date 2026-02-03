@@ -23,8 +23,8 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Premain-Class': 'custom.agent.Agent',
-                'Agent-Class': 'custom.agent.Agent',
+                'Premain-Class': 'agent.Agent',
+                'Agent-Class': 'agent.Agent',
                 'Can-Redefine-Classes': 'true',
                 'Can-Retransform-Classes': 'true'
         )

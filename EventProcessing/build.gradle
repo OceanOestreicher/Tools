@@ -17,6 +17,7 @@ java {
 }
 
 jar {
+    dependsOn(":Agent:shadowJar")
     exclude("custom/striker/Tester.class")
 }
 
@@ -27,7 +28,12 @@ tasks.named('jar') {
     // use Provider so Gradle resolves the file lazily
     from({ project(':Agent').tasks.named('shadowJar').flatMap { it.archiveFile } }) {
         into 'agent'
-        rename { 'agent.jar' }
+        rename { String fileName ->
+            def ts = java.time.LocalDateTime.now().format(
+                    java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            )
+            return "agent-${ts}.jar"
+        }
     }
 }
 
