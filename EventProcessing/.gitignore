@@ -41,4 +41,4 @@ bin/
 
 gradlew
 gradlew.bat
-src/main/custom/striker/Tester.java
+/src/main/java/custom/striker/Tester.java
