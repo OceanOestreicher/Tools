@@ -17,25 +17,26 @@ java {
 }
 
 jar {
-    dependsOn(":Agent:shadowJar")
+//    dependsOn(":Agent:shadowJar")
+//    from({ zipTree(project(':Agent').tasks.named('shadowJar').get().archiveFile.get().asFile) }) {
+//        include 'agent/**'
+//    }
     exclude("custom/striker/Tester.class")
+    exclude("logback.xml")
 }
 
-tasks.named('jar') {
-    // use task path string to avoid requiring the task object at configuration time
-    dependsOn(":Agent:shadowJar")
-
-    // use Provider so Gradle resolves the file lazily
-    from({ project(':Agent').tasks.named('shadowJar').flatMap { it.archiveFile } }) {
-        into 'agent'
-        rename { String fileName ->
-            def ts = java.time.LocalDateTime.now().format(
-                    java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            )
-            return "agent-${ts}.jar"
-        }
-    }
-}
+//tasks.named('jar') {
+//    // use Provider so Gradle resolves the file lazily
+//    from({ project(':Agent').tasks.named('shadowJar').flatMap { it.archiveFile } }) {
+//        into 'agent'
+//        rename { String fileName ->
+//            def ts = java.time.LocalDateTime.now().format(
+//                    java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+//            )
+//            return "agent-${ts}.jar"
+//        }
+//    }
+//}
 
 dependencies {
     // --------------------------

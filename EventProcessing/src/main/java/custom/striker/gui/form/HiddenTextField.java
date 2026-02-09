@@ -87,7 +87,7 @@ public class HiddenTextField extends FormTextField {
     }
 
     /**
-     * Whetherto show the masked text
+     * Whether to show the masked text
      * @param show Should the text be shown
      */
     public void showHiddenText(boolean show) {

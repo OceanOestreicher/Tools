@@ -61,6 +61,10 @@ public class FormTextField extends JTextField implements ValidatedComponent {
         setText(defaultText);
     }
 
+    public boolean isDefaultText() {
+        return getText().equals(defaultText);
+    }
+
     public void setValidBorder(Border border) {
         validBorder = border;
     }

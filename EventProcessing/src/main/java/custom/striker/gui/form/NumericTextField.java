@@ -90,6 +90,30 @@ public class NumericTextField extends FormTextField {
         });
     }
 
+    /**
+     * Returns the numeric value of the text field as an Integer or Double depending on the fieldType, or null if the
+     * text is empty or invalid
+     * @return The numeric value of the text field as an Integer or Double depending on the fieldType, or null if the
+     * text is empty or invalid
+     * @param <T> The type of numeric value to return (Integer or Double)
+     */
+    public <T> T getNumericValue() {
+        String text = getText();
+        if (isDefaultText() || text.isEmpty()) {
+            return null;
+        }
+
+        try {
+            if (fieldType == INTEGER) {
+                return (T) Integer.valueOf(text);
+            } else {
+                return (T) Double.valueOf(text);
+            }
+        } catch (NumberFormatException e) {
+            return null; // Should not happen due to regex validation, but just in case
+        }
+    }
+
     private void updateFieldRegex() {
         if (fieldType == INTEGER) {
             // Allow empty, a lone '-', or a single zero, or a non-zero digit followed by digits (no leading zeros)
