@@ -29,7 +29,7 @@ public class ContextMenuFactory {
             @Override
             public void mousePressed(MouseEvent evt) {
                 if (evt.isPopupTrigger()) {
-                    showMenu(evt);
+                    ContextMenuManager.showMenu(menu, evt);
                 }
 
                 menu.setVisible(false);
@@ -38,15 +38,10 @@ public class ContextMenuFactory {
             @Override
             public void mouseReleased(MouseEvent evt) {
                 if (SwingUtilities.isRightMouseButton(evt)) {
-                    showMenu(evt);
+                    ContextMenuManager.showMenu(menu, evt);
                 } else {
                     menu.setVisible(false);
                 }
-            }
-
-            private void showMenu(MouseEvent evt) {
-                menu.setLocation(evt.getXOnScreen() + 5, evt.getYOnScreen() + 5);
-                menu.setVisible(true);
             }
         };
 
