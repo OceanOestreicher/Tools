@@ -4,16 +4,13 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Factory class for creating and managing context menus in the application.
- * Ensures that only one context menu is active at a time and handles mouse events to show/hide the menu.
  */
 public class ContextMenuFactory {
-
-    private static ContextMenu activeMenu = null;
-
-    private static MouseAdapter activeAdapter = null;
 
     /**
      * Creates a new context menu with the specified options and attaches it to the given parent component.
@@ -21,27 +18,21 @@ public class ContextMenuFactory {
      * @param options the list of options to be displayed in the context menu
      * @return the created ContextMenu instance
      */
-    public static ContextMenu createContextMenu(JComponent parent, List<String> options) {
-        if (activeMenu != null) {
-            activeMenu.dispose();
-        }
-
+    public static ContextMenu createContextMenu(JComponent parent, Map<String, ContextMenuAction> options) {
         ContextMenu menu = new ContextMenu(parent, options);
-        activeMenu = menu;
-        configureMouseAdapter(parent);
+        configureMouseAdapter(parent, menu);
         return menu;
     };
 
-    private static void configureMouseAdapter(JComponent parent) {
-        if (activeAdapter != null) {
-            parent.removeMouseListener(activeAdapter);
-        }
-        activeAdapter = new MouseAdapter() {
+    private static void configureMouseAdapter(JComponent parent, ContextMenu menu) {
+        MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent evt) {
                 if (evt.isPopupTrigger()) {
                     showMenu(evt);
                 }
+
+                menu.setVisible(false);
             }
 
             @Override
@@ -49,17 +40,17 @@ public class ContextMenuFactory {
                 if (SwingUtilities.isRightMouseButton(evt)) {
                     showMenu(evt);
                 } else {
-                    activeMenu.dispose();
+                    menu.setVisible(false);
                 }
             }
 
             private void showMenu(MouseEvent evt) {
-                activeMenu.setLocation(evt.getXOnScreen() + 5, evt.getYOnScreen() + 5);
-                activeMenu.setVisible(true);
+                menu.setLocation(evt.getXOnScreen() + 5, evt.getYOnScreen() + 5);
+                menu.setVisible(true);
             }
         };
 
-        parent.addMouseListener(activeAdapter);
-        parent.addMouseMotionListener(activeAdapter);
+        parent.addMouseListener(adapter);
+        parent.addMouseMotionListener(adapter);
     }
 }
