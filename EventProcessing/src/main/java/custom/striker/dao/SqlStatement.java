@@ -66,7 +66,7 @@ public class SqlStatement {
             returnValue = Integer.toString(converted);
         }
 
-        return "\"" + returnValue + "\"";
+        return returnValue;
     }
 
     public PageRequest getPageRequest() {
@@ -75,5 +75,10 @@ public class SqlStatement {
 
     public void setPageRequest(PageRequest pageRequest) {
         this.pageRequest = pageRequest;
+    }
+
+    @Override
+    public String toString() {
+        return getQueryString();
     }
 }

@@ -17,22 +17,22 @@ import java.util.Set;
  */
 public class ContextMenuOption extends ContentPanel {
 
-    private Color backgroundColor = new Color(150,150,150);
-    private Color foregroundColor = UIManager.getColor("Label.foreground");
-    private Color hoverColor = new Color(180, 180, 180);
-    private Color pressedColor = new Color(200, 200, 200);
+    private Color backgroundColor = new Color(220, 220, 220);
+    private Color hoverColor = new Color(230, 230, 230);
+    private Color pressedColor = new Color(245, 245, 245);
 
     private final Set<ActionListener> listeners;
+    private final JLabel optionLabel;
 
     /**
      * Creates a ContextMenuOption with the provided display name and action to perform when clicked
      * @param displayName Name to display for this option
      * @param action Action to perform when this option is clicked
      */
-    protected ContextMenuOption(String displayName, ContextMenuAction action)  {
-        add(new JLabel(displayName));
+    protected ContextMenuOption(String displayName, ContextMenuAction action) {
+        optionLabel = new JLabel(displayName);
+        add(optionLabel);
         listeners = new HashSet<>();
-        setBackground(backgroundColor);
 
         MouseAdapter adapter = new MouseAdapter() {
             @Override
@@ -78,7 +78,7 @@ public class ContextMenuOption extends ContentPanel {
     }
 
     public void setForegroundColor(Color foregroundColor) {
-        this.foregroundColor = foregroundColor;
+        optionLabel.setForeground(foregroundColor);
     }
 
     public void setHoverColor(Color hoverColor) {
