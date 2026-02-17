@@ -26,6 +26,23 @@ public interface EventConsumer {
    }
 
     /**
+     * Unsubscribes this consumer from receiving events corresponding to type. By default, this method will unregister the consumer
+     * from the configured processor in the {@link EventProcessorRegistry}
+     * @param type The type of events the consumer would like to stop receiving
+     */
+   default void unsubscribe(EventType<?> type) {
+       EventProcessorRegistry.getProcessor().unregisterConsumer(type, this);
+   }
+
+    /**
+     * Unsubscribes this consumer from receiving events for all types. By default, this method will unregister the consumer
+     * from the configured processor in the {@link EventProcessorRegistry}
+     */
+   default void unsubscribe() {
+         EventProcessorRegistry.getProcessor().unregisterConsumer(this);
+   }
+
+    /**
      * Consumes the event
      * @param event The event to consume
      */

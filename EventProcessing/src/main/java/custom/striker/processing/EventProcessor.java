@@ -31,6 +31,19 @@ public interface EventProcessor {
     void registerConsumer(EventType<?> type, EventConsumer consumer);
 
     /**
+     * Unregisters a consumer from receiving any events
+     * @param consumer The consumer to unregister
+     */
+    void unregisterConsumer(EventConsumer consumer);
+
+    /**
+     * Unregisters a consumer from receiving events for the provided event type
+     * @param type Type of events the subscriber will stop receiving
+     * @param consumer The consumer to unregister
+     */
+    void unregisterConsumer(EventType<?> type, EventConsumer consumer);
+
+    /**
      * Enqueues an event to be processed and consumed
      * @param event The event to enqueue
      */
