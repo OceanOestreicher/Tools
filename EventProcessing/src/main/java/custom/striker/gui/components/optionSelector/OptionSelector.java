@@ -7,20 +7,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Component that displays a list of {@link Option}s and allows the user to select one.
  */
-public class OptionSelector extends ContentPanel implements ActionListener {
+public class OptionSelector<T extends Option> extends ContentPanel implements ActionListener {
 
-    private Option selectedOption;
+    private T selectedOption;
+    private List<T> options;
+    private ScrollPane scrollPane;
+
+    private Dimension pendingSize;
+    private Integer pendingVerticalScrollBarPolicy;
+    private Integer pendingHorizontalScrollBarPolicy;
 
     public OptionSelector() {
         setLayout(new BorderLayout());
     }
 
-    public void setOptions(List<Option> options) {
+    public void setOptions(List<T> options) {
+        this.options = options;
         removeAll();
         ContentPanel optionPanel = new ContentPanel();
         optionPanel.setLayout(new GridBagLayout());
@@ -40,9 +48,22 @@ public class OptionSelector extends ContentPanel implements ActionListener {
         }
 
         addVerticalFillPanel(gbc.gridy, optionPanel);
-        ScrollPane sp = new ScrollPane(optionPanel);
-        sp.getVerticalScrollBar().setUnitIncrement(16);
-        add(sp, BorderLayout.CENTER);
+        scrollPane = new ScrollPane(optionPanel);
+
+        if (pendingSize != null) {
+            scrollPane.setPreferredSize(pendingSize);
+        }
+
+        if (pendingVerticalScrollBarPolicy != null) {
+            scrollPane.setVerticalScrollBarPolicy(pendingVerticalScrollBarPolicy);
+        }
+
+        if (pendingHorizontalScrollBarPolicy != null) {
+            scrollPane.setHorizontalScrollBarPolicy(pendingHorizontalScrollBarPolicy);
+        }
+
+        OptionSelector.this.scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(OptionSelector.this.scrollPane, BorderLayout.CENTER);
 
         SwingUtilities.invokeLater(() -> {
             revalidate();
@@ -50,8 +71,74 @@ public class OptionSelector extends ContentPanel implements ActionListener {
         });
     }
 
+    public void addOption(T option) {
+        if (this.options == null) {
+            this.options = new ArrayList<>();
+        }
+        this.options.add(option);
+        setOptions(this.options);
+    }
+
+    public void setSelectedOption(T option) {
+        if (option != null && !options.contains(option)) {
+            throw new IllegalArgumentException("Option must be in the options list");
+        }
+
+        if (selectedOption != null) {
+            selectedOption.setSelected(false);
+        }
+
+        selectedOption = option;
+
+        if (selectedOption != null) {
+            selectedOption.setSelected(true);
+            SwingUtilities.invokeLater(() -> {
+                Rectangle bounds = selectedOption.getBounds();
+                scrollPane.getViewport().scrollRectToVisible(bounds);
+            });
+        }
+    }
+
     public Option getSelectedOption() {
         return selectedOption;
+    }
+
+    public void setWindowSize(Dimension preferredSize) {
+        if (this.scrollPane == null) {
+            pendingSize = preferredSize;
+            return;
+        }
+        scrollPane.setPreferredSize(preferredSize);
+    }
+
+    public void setVerticalScrollBarPolicy(int policy) {
+        if (this.scrollPane == null) {
+            pendingVerticalScrollBarPolicy = policy;
+            return;
+        }
+        scrollPane.setVerticalScrollBarPolicy(policy);
+    }
+
+    public void setHorizontalScrollBarPolicy(int policy) {
+        if (this.scrollPane == null) {
+            pendingHorizontalScrollBarPolicy = policy;
+            return;
+        }
+        scrollPane.setHorizontalScrollBarPolicy(policy);
+    }
+
+    public void removeOption(T option) {
+        if (option == null || !options.contains(option)) {
+            throw new IllegalArgumentException("Option must be in the options list");
+        }
+
+        if (selectedOption == option) {
+            selectedOption.setSelected(false);
+            selectedOption = null;
+        }
+
+        options.remove(option);
+        setOptions(options);
     }
 
     private void addVerticalFillPanel(int gridY, ContentPanel optionPanel) {
@@ -85,7 +172,7 @@ public class OptionSelector extends ContentPanel implements ActionListener {
                     selectedOption.setSelected(false);
                 }
 
-                selectedOption = (Option) e.getSource();
+                selectedOption = (T) e.getSource();
             }
         }
     }
