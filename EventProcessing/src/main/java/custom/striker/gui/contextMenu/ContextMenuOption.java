@@ -17,9 +17,11 @@ import java.util.Set;
  */
 public class ContextMenuOption extends ContentPanel {
 
-    private Color backgroundColor = new Color(220, 220, 220);
-    private Color hoverColor = new Color(230, 230, 230);
-    private Color pressedColor = new Color(245, 245, 245);
+    private static final Color DEFAULT_BACKGROUND_COLOR = new Color(210, 210, 210);
+
+    private Color backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    private Color hoverColor = new Color(220, 220, 220);
+    private Color pressedColor = new Color(230, 230, 230);
 
     private final Set<ActionListener> listeners;
     private final JLabel optionLabel;
@@ -30,35 +32,55 @@ public class ContextMenuOption extends ContentPanel {
      * @param action Action to perform when this option is clicked
      */
     protected ContextMenuOption(String displayName, ContextMenuAction action) {
+        setBackgroundColor(backgroundColor);
         optionLabel = new JLabel(displayName);
+        optionLabel.setBackground(backgroundColor);
         add(optionLabel);
         listeners = new HashSet<>();
 
         MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                setBackground(pressedColor);
+                updateBackground(pressedColor);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                setBackground(backgroundColor);
+                updateBackground(backgroundColor);
                 fireActionPerformed();
                 action.perform();
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                setBackground(hoverColor);
+                updateBackground(hoverColor);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                setBackground(backgroundColor);
+                updateBackground(backgroundColor);
             }
         };
         addMouseListener(adapter);
         addMouseMotionListener(adapter);
+    }
+
+    private void updateBackground(Color color) {
+        setBackground(color);
+        repaint();
+        repaintMenu();
+    }
+
+    private void repaintMenu() {
+        Container parent = getParent();
+        if (parent != null) {
+            parent.repaint();
+            return;
+        }
+        Component ancestor = SwingUtilities.getAncestorOfClass(ContentPanel.class, this);
+        if (ancestor != null) {
+            ancestor.repaint();
+        }
     }
 
     protected void addActionListener(ActionListener listener) {
@@ -74,7 +96,15 @@ public class ContextMenuOption extends ContentPanel {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
-        setBackground(backgroundColor);
+        updateBackground(backgroundColor);
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public static Color getDefaultBackgroundColor() {
+        return DEFAULT_BACKGROUND_COLOR;
     }
 
     public void setForegroundColor(Color foregroundColor) {
@@ -87,5 +117,19 @@ public class ContextMenuOption extends ContentPanel {
 
     public void setPressedColor(Color pressedColor) {
         this.pressedColor = pressedColor;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            super.paintComponent(g);
+        } finally {
+            g2.dispose();
+        }
     }
 }
