@@ -2,7 +2,6 @@ package custom.striker.gui.components.border;
 
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * A simple rounded line border with configurable thickness and arc (corner radius).

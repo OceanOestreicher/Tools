@@ -4,7 +4,6 @@ import custom.striker.gui.ContentPanel;
 import custom.striker.gui.components.border.RoundedLineBorder;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import java.awt.*;
@@ -26,6 +25,12 @@ public class ContextMenu extends JWindow implements ActionListener {
     private final int arc = 12;
     private final ContentPanel contentPanel;
     private Color menuBackgroundColor;
+
+    private AWTEventListener globalClickListener;
+    private boolean listenerRegistered = false;
+    // Time (MouseEvent.getWhen()) of the mouse event that caused this menu to be shown. Used to ignore that
+    // same event when it bubbles through AWT (so the opening click doesn't immediately close the menu).
+    private long showTriggerEventTime = -1;
 
     /**
      * Create a context menu with the provided options. The menu will automatically dispose itself when the parent component
@@ -69,6 +74,86 @@ public class ContextMenu extends JWindow implements ActionListener {
                 applyWindowShape();
             }
         });
+    }
+
+    /**
+     * Record the timestamp of the MouseEvent that caused the menu to be shown. This helps ignore that
+     * same opening event when handling global outside-click detection.
+     */
+    public void setShowTriggerEventTime(long when) {
+        this.showTriggerEventTime = when;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            if (globalClickListener == null) {
+               setupGlobalClickListener();
+            }
+
+            if (!listenerRegistered) {
+                Toolkit.getDefaultToolkit().addAWTEventListener(globalClickListener, AWTEvent.MOUSE_EVENT_MASK);
+                listenerRegistered = true;
+            }
+        } else if (listenerRegistered && globalClickListener != null) {
+            Toolkit.getDefaultToolkit().removeAWTEventListener(globalClickListener);
+            listenerRegistered = false;
+            // reset trigger time when hidden
+            showTriggerEventTime = -1;
+        }
+
+        // Ensure we call the super implementation on the EDT. setVisible is already EDT-affined in typical use,
+        // but we'll just call it directly here.
+        super.setVisible(visible);
+    }
+
+    private void setupGlobalClickListener() {
+        globalClickListener = (AWTEvent event) -> {
+            if (!(event instanceof MouseEvent)){
+                return;
+            }
+            MouseEvent me = (MouseEvent) event;
+            if (me.getID() != MouseEvent.MOUSE_PRESSED) {
+                return; // respond to presses for responsiveness
+            }
+
+            // Ignore the mouse event that caused the menu to open
+            if (showTriggerEventTime >= 0 && me.getWhen() <= showTriggerEventTime){
+                return;
+            }
+
+            if (!isVisible() || !isDisplayable()){
+                return;
+            }
+
+            Point loc;
+            try {
+                loc = getLocationOnScreen();
+            } catch (IllegalComponentStateException ex) {
+                // Not yet on screen / realized; ignore
+                return;
+            }
+
+            Rectangle bounds = new Rectangle(loc.x, loc.y, getWidth(), getHeight());
+            if (!bounds.contains(me.getXOnScreen(), me.getYOnScreen())) {
+                // Click outside this menu — centralize hide through the manager
+                ContextMenuManager.hideMenu(this);
+            }
+        };
+    }
+
+    @Override
+    public void dispose() {
+        // Clean up global listener to avoid memory leaks
+        if (listenerRegistered && globalClickListener != null) {
+            try {
+                Toolkit.getDefaultToolkit().removeAWTEventListener(globalClickListener);
+            } catch (Throwable t) {
+                // ignore - best-effort cleanup
+            }
+            listenerRegistered = false;
+        }
+        super.dispose();
     }
 
     private ContentPanel buildContentPanel() {
