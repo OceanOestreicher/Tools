@@ -12,7 +12,7 @@ public interface EventConsumer {
      * to the configured processor in the {@link EventProcessorRegistry}
      * @param type The type of events the consumer would like to receive
      */
-   default void subscribe(EventType<?> type) {
+   default void subscribe(EventEnum<?> type) {
         EventProcessorRegistry.getProcessor().registerConsumer(type, this);
    }
 
@@ -21,7 +21,7 @@ public interface EventConsumer {
      * will register the consumer to the configured processor in the {@link EventProcessorRegistry}
      * @param types The types of events the consumer would like to receive
      */
-   default void subscribe(List<EventType<?>> types) {
+   default void subscribe(List<EventEnum<?>> types) {
        types.forEach(this::subscribe);
    }
 
@@ -30,7 +30,7 @@ public interface EventConsumer {
      * from the configured processor in the {@link EventProcessorRegistry}
      * @param type The type of events the consumer would like to stop receiving
      */
-   default void unsubscribe(EventType<?> type) {
+   default void unsubscribe(EventEnum<?> type) {
        EventProcessorRegistry.getProcessor().unregisterConsumer(type, this);
    }
 

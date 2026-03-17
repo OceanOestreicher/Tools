@@ -12,7 +12,7 @@ import java.util.List;
  * to the {@link ValidationSchema}, which can then be validated as a whole by calling the
  * {@link #validate()} method.
  */
-public final class ValidationSchema {
+public class ValidationSchema {
 
     private final Map<ValidatedComponent, List<Schema<?, ?>>> schemas;
 

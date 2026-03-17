@@ -8,24 +8,27 @@ import custom.striker.processing.payload.EmptyPayload;
  */
 public abstract class Event {
 
-    private final EventType<? extends Enum<?>> type;
+    private final EventEnum<? extends Enum<?>> type;
     private final Object payload;
 
-    public Event(EventType<?> type) {
+    public Event(EventEnum<?> type) {
         this.type = type;
         payload = new EmptyPayload();
     }
 
-    public Event(EventType<?> type, Object payload) {
+    public Event(EventEnum<?> type, Object payload) {
         this.type = type;
         this.payload = payload;
     }
 
     public <T extends Enum<T>> T getType() {
-        return (T) type.getType();
+        return (T) type.getEnum();
     }
 
     public <T> T getPayload() {
+        if (payload == null) {
+            return null;
+        }
         return (T) payload;
     }
 }

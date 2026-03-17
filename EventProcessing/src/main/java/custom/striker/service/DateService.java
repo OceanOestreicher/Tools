@@ -98,4 +98,12 @@ public final class DateService {
         return Optional.empty();
     }
 
+    /**
+     * Returns the current date/time as an OffsetDateTime using the service's fallback zone.
+     * @return current OffsetDateTime
+     */
+    public static OffsetDateTime now() {
+        return ZonedDateTime.now(FALLBACK_ZONE).toOffsetDateTime();
+    }
+
 }
