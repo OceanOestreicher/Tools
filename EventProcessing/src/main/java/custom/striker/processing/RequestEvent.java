@@ -31,8 +31,9 @@ public class RequestEvent extends Event {
         this.responseType = responseType;
     }
 
-    public EventEnum<?> getResponseType() {
-        return responseType;
+    @SuppressWarnings("unchecked")
+    public <T extends EventEnum<?>> T getResponseType() {
+        return (T) responseType;
     }
 
     private void validateType(EventEnum<?> type) {

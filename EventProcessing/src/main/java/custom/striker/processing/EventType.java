@@ -6,5 +6,6 @@ package custom.striker.processing;
 public enum EventType {
     NOTIFICATION,
     REQUEST,
-    RESPONSE
+    RESPONSE,
+    CUSTOM
 }
