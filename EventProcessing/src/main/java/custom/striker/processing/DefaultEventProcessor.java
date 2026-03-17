@@ -144,7 +144,7 @@ public class DefaultEventProcessor implements EventProcessor {
             }
 
             for (EventConsumer consumer: eventConsumers) {
-                executorService.submit(() -> consumer.consume(event));
+                executorService.submit(() -> consumer.consume(event.getType(), event));
             }
         }
     }

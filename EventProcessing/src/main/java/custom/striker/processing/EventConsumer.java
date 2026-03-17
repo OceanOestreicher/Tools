@@ -5,14 +5,14 @@ import java.util.List;
 /**
  * Interface for a class which consumes events from a registered {@link EventProcessor}.
  */
-public interface EventConsumer {
+public interface EventConsumer<T extends EventEnum<?>> {
 
     /**
      * Subscribes this consumer to receive events corresponding to type. By default, this method will register the consumer
      * to the configured processor in the {@link EventProcessorRegistry}
      * @param type The type of events the consumer would like to receive
      */
-   default void subscribe(EventEnum<?> type) {
+   default void subscribe(T type) {
         EventProcessorRegistry.getProcessor().registerConsumer(type, this);
    }
 
@@ -21,7 +21,7 @@ public interface EventConsumer {
      * will register the consumer to the configured processor in the {@link EventProcessorRegistry}
      * @param types The types of events the consumer would like to receive
      */
-   default void subscribe(List<EventEnum<?>> types) {
+   default void subscribe(List<T> types) {
        types.forEach(this::subscribe);
    }
 
@@ -30,7 +30,7 @@ public interface EventConsumer {
      * from the configured processor in the {@link EventProcessorRegistry}
      * @param type The type of events the consumer would like to stop receiving
      */
-   default void unsubscribe(EventEnum<?> type) {
+   default void unsubscribe(T type) {
        EventProcessorRegistry.getProcessor().unregisterConsumer(type, this);
    }
 
@@ -44,7 +44,8 @@ public interface EventConsumer {
 
     /**
      * Consumes the event
+     * @param type The type of the event to consume
      * @param event The event to consume
      */
-   void consume(Event event);
+   void consume(T type, Event event);
 }

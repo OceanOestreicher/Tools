@@ -21,7 +21,7 @@ public abstract class Event {
         this.payload = payload;
     }
 
-    public <T extends Enum<T>> T getType() {
+    public <T extends EventEnum<?>> T getType() {
         return (T) type.getEnum();
     }
 

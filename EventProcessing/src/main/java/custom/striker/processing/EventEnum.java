@@ -6,6 +6,7 @@ package custom.striker.processing;
  */
 public interface EventEnum<T extends Enum<T>> {
 
+    @SuppressWarnings("unchecked")
     default T getEnum() {
         return (T) this;
     }
