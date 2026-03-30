@@ -1,4 +1,4 @@
-package custom.striker.service;
+package custom.striker.service.date;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -96,6 +96,44 @@ public final class DateService {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Computes a new OffsetDateTime based on the provided DateRule and starting date.
+     * @param rule - the DateRule containing the number of years, months, and days to add
+     * @param date - the starting OffsetDateTime to apply the rule to
+     * @return an Optional containing the computed OffsetDateTime, or empty if the rule or date is null
+     */
+    public static Optional<OffsetDateTime> computeDateRule(DateRule rule, OffsetDateTime date) {
+        if (rule == null || date == null) {
+            return Optional.empty();
+        }
+        OffsetDateTime result = date;
+        result = result.withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        if (rule.getYears() > 0) {
+            YearMonth ym = YearMonth.of(result.getYear() + 1, 1);
+            int safeDay = Math.min(rule.getDays(), ym.lengthOfMonth());
+            result = result.withYear(result.getYear() + 1);
+            result = result.withMonth(rule.getMonths());
+            result = result.withDayOfMonth(safeDay);
+        } else if (rule.getMonths() > 0) {
+            int month = result.getMonthValue() + rule.getMonths();
+            int year = result.getYear();
+
+            if (month > 12) {
+                month = month % 12;
+                year += 1;
+            }
+
+            YearMonth ym = YearMonth.of(year, month);
+            int safeDay = Math.min(rule.getDays(), ym.lengthOfMonth());
+            result = result.withMonth(month);
+            result = result.withDayOfMonth(safeDay);
+        } else {
+            result = result.plusDays(rule.getDays());
+        }
+        return Optional.of(result);
     }
 
     /**

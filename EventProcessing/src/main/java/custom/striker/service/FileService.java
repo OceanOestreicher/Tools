@@ -28,8 +28,12 @@ public final class FileService {
     public static void save(String savePath, Object objectToSave) throws Exception {
 
         int indexOfFinalSlash = savePath.lastIndexOf("/");
-        String directory = savePath.substring(0, indexOfFinalSlash);
-        getDirectory(directory);
+
+        if (indexOfFinalSlash != -1) {
+            // Confirm directory exists
+            String directory = savePath.substring(0, indexOfFinalSlash);
+            getDirectory(directory);
+        }
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(savePath))) {
             String objectString = mapper.writeValueAsString(objectToSave);
@@ -40,7 +44,7 @@ public final class FileService {
     }
 
     /**
-     * Loads all files from the provided directory path
+     * Loads all files from the provided directory path or loads the file if the provided path is a file.
      *
      * @param directoryPath Directory which contains files to load. The path must not begin with /
      * @param classToLoad The class used by Jackson to convert the contents of each file to
@@ -48,9 +52,18 @@ public final class FileService {
      * @param <T> The class type that the files map to
      * @throws FileIOException Thrown if the directory doesn't exist or if an error occurs while loading files
      */
-    public static <T> List<T> load(String directoryPath, Class<T> classToLoad) throws FileIOException {
-        Path directory = getDirectory(directoryPath);
+    public static <T> List<T> load(String directoryPath, Class<T> classToLoad) throws FileIOException, Exception {
+        Path path = Paths.get(directoryPath);
 
+        if (Files.exists(path) && Files.isRegularFile(path)) {
+            T object = mapper.readValue(path.toFile(), classToLoad);
+            List<T> results = new ArrayList<>();
+            results.add(object);
+            return results;
+        }
+
+
+        Path directory = getDirectory(directoryPath);
         try(Stream<Path> fileStream = Files.list(directory)) {
 
             List<Path> files = fileStream
@@ -59,8 +72,8 @@ public final class FileService {
 
             List<T> results = new ArrayList<>();
 
-            for(Path path: files) {
-                T object = mapper.readValue(path.toFile(), classToLoad);
+            for(Path file: files) {
+                T object = mapper.readValue(file.toFile(), classToLoad);
                 results.add(object);
             }
 
