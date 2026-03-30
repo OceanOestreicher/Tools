@@ -128,6 +128,7 @@ public final class DateService {
 
             YearMonth ym = YearMonth.of(year, month);
             int safeDay = Math.min(rule.getDays(), ym.lengthOfMonth());
+            result = result.withYear(year);
             result = result.withMonth(month);
             result = result.withDayOfMonth(safeDay);
         } else {
