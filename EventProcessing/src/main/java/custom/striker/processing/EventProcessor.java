@@ -28,20 +28,20 @@ public interface EventProcessor {
      * @param type Type of events the subscriber will receive
      * @param consumer The consumer to subscribe
      */
-    void registerConsumer(EventEnum<?> type, EventConsumer consumer);
+    void registerConsumer(EventEnum<?> type, EventConsumer<?> consumer);
 
     /**
      * Unregisters a consumer from receiving any events
      * @param consumer The consumer to unregister
      */
-    void unregisterConsumer(EventConsumer consumer);
+    void unregisterConsumer(EventConsumer<?> consumer);
 
     /**
      * Unregisters a consumer from receiving events for the provided event type
      * @param type Type of events the subscriber will stop receiving
      * @param consumer The consumer to unregister
      */
-    void unregisterConsumer(EventEnum<?> type, EventConsumer consumer);
+    void unregisterConsumer(EventEnum<?> type, EventConsumer<?> consumer);
 
     /**
      * Enqueues an event to be processed and consumed

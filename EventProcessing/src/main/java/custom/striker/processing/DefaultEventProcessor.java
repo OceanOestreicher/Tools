@@ -12,8 +12,8 @@ import java.util.concurrent.*;
 public class DefaultEventProcessor implements EventProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultEventProcessor.class);
-    private static final ConcurrentMap<EventEnum<? extends Enum<?>>, List<EventConsumer>> typeToConsumerMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<EventConsumer, List<EventEnum<? extends Enum<?>>>> consumerToTypeMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<EventEnum<? extends Enum<?>>, List<EventConsumer<?>>> typeToConsumerMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<EventConsumer<?>, List<EventEnum<? extends Enum<?>>>> consumerToTypeMap = new ConcurrentHashMap<>();
     private static final Queue<Event> eventQueue = new ConcurrentLinkedQueue<>();
     private static final Object lock = new Object();
     private static volatile boolean process = true;
@@ -46,7 +46,7 @@ public class DefaultEventProcessor implements EventProcessor {
     }
 
     /** {@inheritDoc} */
-    public void registerConsumer(EventEnum<?> type, EventConsumer consumer) {
+    public void registerConsumer(EventEnum<?> type, EventConsumer<?> consumer) {
         typeToConsumerMap.computeIfAbsent(type, k -> new CopyOnWriteArrayList<>());
         consumerToTypeMap.computeIfAbsent(consumer, k -> new CopyOnWriteArrayList<>());
 
@@ -60,7 +60,7 @@ public class DefaultEventProcessor implements EventProcessor {
 
     /** {@inheritDoc} */
     @Override
-    public void unregisterConsumer(EventConsumer consumer) {
+    public void unregisterConsumer(EventConsumer<?> consumer) {
         List<EventEnum<? extends Enum<?>>> types = consumerToTypeMap.remove(consumer);
         if (types == null || types.isEmpty()) {
             return;
@@ -75,7 +75,7 @@ public class DefaultEventProcessor implements EventProcessor {
 
     /** {@inheritDoc} */
     @Override
-    public void unregisterConsumer(EventEnum<?> type, EventConsumer consumer) {
+    public void unregisterConsumer(EventEnum<?> type, EventConsumer<?> consumer) {
         typeToConsumerMap.computeIfPresent(type, (k, list) -> {
             list.remove(consumer);
             return list.isEmpty() ? null : list;
@@ -137,13 +137,13 @@ public class DefaultEventProcessor implements EventProcessor {
         }
 
         private void notifyConsumers(Event event) {
-            List<EventConsumer> eventConsumers = typeToConsumerMap.get(event.getType());
+            List<EventConsumer<?>> eventConsumers = typeToConsumerMap.get(event.getType());
 
             if (eventConsumers == null) {
                 return;
             }
 
-            for (EventConsumer consumer: eventConsumers) {
+            for (EventConsumer<?> consumer: eventConsumers) {
                 executorService.submit(() -> consumer.consume(event.getType(), event));
             }
         }

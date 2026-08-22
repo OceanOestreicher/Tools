@@ -113,7 +113,8 @@ public final class FileService {
     }
 
     /**
-     * Creates the directories from the provided directory path. The path must not begin with /
+     * Creates the directories from the provided directory path. The path must not begin with /. If a directory
+     * already exists, it will not be created again
      * @param directoryPath Path of directories to create
      * @throws RuntimeException Thrown if an issue occurs when creating directories
      */
